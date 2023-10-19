@@ -3,7 +3,10 @@ package com.example.cimbexcel.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
+
+import org.springframework.stereotype.Component;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +21,9 @@ import lombok.ToString;
 @Data
 @Entity
 @Table(name = "MAP_NON_SWIFT", schema = "REFERENCE_DATA_SERVICE")
-public class MapNonSwift {
+@IdClass(MapNonSwitfKey.class)
+@Component
+public class MapNonSwift{
     @Id
     @Column(name = "COUNTRY_CODE")
     private String countryCode;

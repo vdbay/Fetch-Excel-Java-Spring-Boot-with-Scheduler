@@ -2,6 +2,8 @@ package com.example.cimbexcel.util;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,7 +12,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.poi.hssf.record.PageBreakRecord.Break;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -19,16 +20,19 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.example.cimbexcel.model.MapNonSwift;
 import com.example.cimbexcel.model.MasterOverseasBank;
+import com.example.cimbexcel.repository.MapNonSwiftRepository;
+import com.example.cimbexcel.repository.MasterOverseasBankRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class CountryMappingUtil {
-    private static MapNonSwift mapNonSwiftRepository;
-    private static MasterOverseasBank masterOverseasBankRepository;
+    private static MapNonSwiftRepository mapNonSwiftRepository;
+    private static MasterOverseasBankRepository masterOverseasBankRepository;
 
-    public CountryMappingUtil(MapNonSwift mapNonSwiftRepository, MasterOverseasBank masterOverseasBankRepository) {
+    public CountryMappingUtil(MapNonSwiftRepository mapNonSwiftRepository,
+            MasterOverseasBankRepository masterOverseasBankRepository) {
         this.mapNonSwiftRepository = mapNonSwiftRepository;
         this.masterOverseasBankRepository = masterOverseasBankRepository;
     }
@@ -84,6 +88,11 @@ public class CountryMappingUtil {
                 // mapNonSwiftRepository.save(mapNonSwift);
                 // mapNonSwifts.add(mapNonSwift);
                 // }
+                if (StringUtils.hasText(mapNonSwift.getCountryCode()) && StringUtils.hasText(mapNonSwift.getCurrency())) {
+                    // Ensure that all primary key fields are not empty before saving
+                    mapNonSwiftRepository.save(mapNonSwift);
+                    mapNonSwifts.add(mapNonSwift);
+                }
             }
             fis.close();
 
@@ -148,6 +157,11 @@ public class CountryMappingUtil {
                 // masterOverseasBankRepository.save(masterOverseasBank);
                 // masterOverseasBanks.add(masterOverseasBank);
                 // }
+                if(StringUtils.hasText(masterOverseasBank.getSpeedsendCode())) {
+                    // Ensure that all primary key fields are not empty before saving
+                    masterOverseasBankRepository.save(masterOverseasBank);
+                    masterOverseasBanks.add(masterOverseasBank);
+                }
             }
             fis.close();
 
