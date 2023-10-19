@@ -28,7 +28,7 @@ public class SchedulerConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(myScheduledJob1Detail())
                 .withIdentity("fetchCountryMappingTrigger")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 12 15 * * ?")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 24 10 * * ?")
                 .inTimeZone(TimeZone.getTimeZone("Asia/Jakarta"))) 
                 .build();
     }
