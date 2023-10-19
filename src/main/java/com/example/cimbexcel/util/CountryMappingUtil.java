@@ -1,5 +1,6 @@
 package com.example.cimbexcel.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -78,17 +79,18 @@ public class CountryMappingUtil {
                         default:
                             break;
                     }
+
+                    if (mapNonSwiftRepository.count() == 0 || mapNonSwiftRepository
+                            .existsByCountryCodeAndCurrency(mapNonSwift.getCountryCode(), mapNonSwift.getCurrency())) {
+                        mapNonSwift.setIsDelete(false);
+                    } else {
+                        mapNonSwift.setIsDelete(true);
+                    }
+
                 }
 
-                // // Cek apakah data sudah ada dalam tabel
-                // if
-                // (!mapNonSwiftRepository.existsByCountryCodeAndCountryName(mapNonSwift.getCountryCode(),
-                // mapNonSwift.getCountryName())) {
-                // // Simpan ke database jika belum ada
-                // mapNonSwiftRepository.save(mapNonSwift);
-                // mapNonSwifts.add(mapNonSwift);
-                // }
-                if (StringUtils.hasText(mapNonSwift.getCountryCode()) && StringUtils.hasText(mapNonSwift.getCurrency())) {
+                if (StringUtils.hasText(mapNonSwift.getCountryCode())
+                        && StringUtils.hasText(mapNonSwift.getCurrency())) {
                     // Ensure that all primary key fields are not empty before saving
                     mapNonSwiftRepository.save(mapNonSwift);
                     mapNonSwifts.add(mapNonSwift);
@@ -147,17 +149,17 @@ public class CountryMappingUtil {
                         default:
                             break;
                     }
+                    masterOverseasBank.setSpeedsendFlag(true);
+                    if (masterOverseasBankRepository.count() == 0 || !masterOverseasBankRepository
+                            .existsBySpeedsendCode(masterOverseasBank.getSpeedsendCode())) {
+                        masterOverseasBank.setIsDelete(false);
+                    } else {
+                        masterOverseasBank.setIsDelete(true);
+                    }
+
                 }
 
-                // // Cek apakah data sudah ada dalam tabel
-                // if
-                // (!masterOverseasBankRepository.existsBySwiftCodeAndId(masterOverseasBank.getSwiftCode(),
-                // masterOverseasBank.getId())) {
-                // // Simpan ke database jika belum ada
-                // masterOverseasBankRepository.save(masterOverseasBank);
-                // masterOverseasBanks.add(masterOverseasBank);
-                // }
-                if(StringUtils.hasText(masterOverseasBank.getSpeedsendCode())) {
+                if (StringUtils.hasText(masterOverseasBank.getSpeedsendCode())) {
                     // Ensure that all primary key fields are not empty before saving
                     masterOverseasBankRepository.save(masterOverseasBank);
                     masterOverseasBanks.add(masterOverseasBank);
