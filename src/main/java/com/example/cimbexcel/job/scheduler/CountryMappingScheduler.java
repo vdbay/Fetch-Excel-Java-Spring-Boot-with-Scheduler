@@ -20,16 +20,19 @@ public class CountryMappingScheduler implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         log.error("Running CountryMappingScheduler");
         try {
-            List<MasterOverseasBank> banks = CountryMappingUtil.readBanksAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
-            List<MapNonSwift> mapNonSwifts = CountryMappingUtil.readCountriesAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
+            List<MasterOverseasBank> banks = CountryMappingUtil
+                    .readMasterOverseasBankAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
+            List<MapNonSwift> mapNonSwifts = CountryMappingUtil
+                    .readMapNonSwiftAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
             for (MasterOverseasBank bank : banks) {
                 log.info(bank.toString());
             }
             for (MapNonSwift mapNonSwift : mapNonSwifts) {
                 log.info(mapNonSwift.toString());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("Error running CountryMappingScheduler: {}", e.getMessage());
         }
+
     }
 }

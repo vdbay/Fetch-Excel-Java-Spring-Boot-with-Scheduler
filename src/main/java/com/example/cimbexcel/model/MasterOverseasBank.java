@@ -1,9 +1,13 @@
 package com.example.cimbexcel.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.springframework.stereotype.Component;
 
@@ -40,5 +44,19 @@ public class MasterOverseasBank {
 
     @Column(name = "BANK_NAME")
     private String bankName;
-}
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "CREATED_DATE")
+    private Date createdDate;
+
+    @Column(name = "CREATED_BY")
+    private String createdBy;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "MODIFIED_DATE")
+    private Date modifiedDate;
+
+    @Column(name = "MODIFIED_BY")
+    private String modifiedBy;
+
+}
