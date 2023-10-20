@@ -1,6 +1,5 @@
 package com.example.cimbexcel.job.scheduler;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.quartz.Job;
@@ -20,16 +19,7 @@ public class CountryMappingScheduler implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         log.error("Running CountryMappingScheduler");
         try {
-            List<MasterOverseasBank> banks = CountryMappingUtil
-                    .readMasterOverseasBankAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
-            List<MapNonSwift> mapNonSwifts = CountryMappingUtil
-                    .readMapNonSwiftAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
-            for (MasterOverseasBank bank : banks) {
-                log.info(bank.toString());
-            }
-            for (MapNonSwift mapNonSwift : mapNonSwifts) {
-                log.info(mapNonSwift.toString());
-            }
+            CountryMappingUtil.readMapNonSwiftAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
         } catch (Exception e) {
             log.error("Error running CountryMappingScheduler: {}", e.getMessage());
         }

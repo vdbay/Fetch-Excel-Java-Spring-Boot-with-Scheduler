@@ -9,11 +9,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -40,179 +37,125 @@ public class CountryMappingUtil {
     }
 
     @Transactional
-    public static List<MapNonSwift> readMapNonSwiftAndSaveToDB(String filePath) throws IOException {
-        List<MapNonSwift> mapNonSwifts = new ArrayList<>();
-    
-        // Check if the repository is empty
-        boolean isRepositoryEmpty = mapNonSwiftRepository.count() == 0;
-    
-        // If the repository is not empty, set isDelete to true for all existing records
-        if (!isRepositoryEmpty) {
-            List<MapNonSwift> listCurrentRepo = mapNonSwiftRepository.findAll();
-            for (MapNonSwift currentRepo : listCurrentRepo) {
-                currentRepo.setIsDelete(true);
-                mapNonSwiftRepository.save(currentRepo);
-            }
-        }
-    
-        FileInputStream fis = new FileInputStream(new File(filePath));
-        try (XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
-            XSSFSheet spreadsheet = workbook.getSheetAt(0);
-            Iterator<Row> rowIterator = spreadsheet.iterator();
-    
-            // Skip the first row
-            boolean isFirstRow = true;
-    
-            while (rowIterator.hasNext()) {
-                XSSFRow row = (XSSFRow) rowIterator.next();
-    
-                if (isFirstRow) {
-                    isFirstRow = false;
-                    continue; // Skip the first row
-                }
-    
-                Iterator<Cell> cellIterator = row.cellIterator();
-    
-                MapNonSwift mapNonSwift = new MapNonSwift();
-    
-                // If the repository is empty, set isDelete to false
-                if (isRepositoryEmpty) {
-                    mapNonSwift.setIsDelete(false);
-                }
-    
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-    
-                    switch (cell.getColumnIndex()) {
-                        case 4:
-                            mapNonSwift.setCountryCode(cell.getStringCellValue());
-                            break;
-                        case 6:
-                            mapNonSwift.setCurrency(cell.getStringCellValue());
-                            break;
-                        case 3:
-                            mapNonSwift.setCorridorCode(cell.getStringCellValue());
-                            break;
-                        default:
-                            break;
-                    }
-                }
-    
-                // Check if the data already exists in the repository
-                boolean dataExists = mapNonSwiftRepository.existsByCountryCodeAndCurrency(mapNonSwift.getCountryCode(), mapNonSwift.getCurrency());
-    
-                // If data exists and the repository is not empty, set isDelete to false
-                if (!isRepositoryEmpty && dataExists) {
-                    mapNonSwift.setIsDelete(false);
-                }
-    
-                // Check if CountryCode and Currency have text before saving
-                boolean isCountryCodeAndCurrencyHasText = StringUtils.hasText(mapNonSwift.getCountryCode()) && StringUtils.hasText(mapNonSwift.getCurrency());
-    
-                if (isCountryCodeAndCurrencyHasText) {
-                    mapNonSwiftRepository.save(mapNonSwift);
-                    mapNonSwifts.add(mapNonSwift);
-                }
-            }
-            fis.close();
-        } catch (Exception e) {
-            log.error("Error while reading excel file", e);
-            return Collections.emptyList();
-        }
-    
-        return mapNonSwifts;
-    }
+    public static void readMapNonSwiftAndSaveToDB(String filePath) throws IOException {
 
-    @Transactional
-    public static List<MasterOverseasBank> readMasterOverseasBankAndSaveToDB(String filePath) throws IOException {
-        List<MasterOverseasBank> masterOverseasBanks = new ArrayList<>();
-    
         // Check if the repository is empty
-        boolean isRepositoryEmpty = masterOverseasBankRepository.count() == 0;
-    
+        boolean isMapRepositoryEmpty = mapNonSwiftRepository.count() == 0;
+        boolean isMasterRepositoryEmpty = masterOverseasBankRepository.count() == 0;
+
         // If the repository is not empty, set isDelete to true for all existing records
-        if (!isRepositoryEmpty) {
-            List<MasterOverseasBank> listCurrentRepo = masterOverseasBankRepository.findAll();
-            for (MasterOverseasBank currentRepo : listCurrentRepo) {
-                currentRepo.setIsDelete(true);
-                masterOverseasBankRepository.save(currentRepo);
+        if (!isMapRepositoryEmpty) {
+            List<MapNonSwift> listCurrentMapRepo = mapNonSwiftRepository.findAll();
+            for (MapNonSwift currentMapRepo : listCurrentMapRepo) {
+                currentMapRepo.setIsDelete(true);
+                mapNonSwiftRepository.save(currentMapRepo);
             }
         }
-    
+
+        if (!isMasterRepositoryEmpty) {
+            List<MasterOverseasBank> listCurrentMasterRepo = masterOverseasBankRepository.findAll();
+            for (MasterOverseasBank currentMasterRepo : listCurrentMasterRepo) {
+                currentMasterRepo.setIsDelete(true);
+                masterOverseasBankRepository.save(currentMasterRepo);
+            }
+        }
+
         FileInputStream fis = new FileInputStream(new File(filePath));
         try (XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
             XSSFSheet spreadsheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = spreadsheet.iterator();
-    
+
             // Skip the first row
             boolean isFirstRow = true;
-    
+
             while (rowIterator.hasNext()) {
                 XSSFRow row = (XSSFRow) rowIterator.next();
-    
+
                 if (isFirstRow) {
                     isFirstRow = false;
                     continue; // Skip the first row
                 }
-    
+
                 Iterator<Cell> cellIterator = row.cellIterator();
-    
+
+                MapNonSwift mapNonSwift = new MapNonSwift();
                 MasterOverseasBank masterOverseasBank = new MasterOverseasBank();
-    
+
                 // If the repository is empty, set isDelete to false
-                if (isRepositoryEmpty) {
+                if (isMapRepositoryEmpty) {
+                    mapNonSwift.setIsDelete(false);
+                } else {
+                    mapNonSwift.setIsDelete(true);
+                }
+
+                if (isMasterRepositoryEmpty) {
                     masterOverseasBank.setIsDelete(false);
                 } else {
                     masterOverseasBank.setIsDelete(true);
                 }
-    
+
                 masterOverseasBank.setSpeedsendFlag(true);
-    
+
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
-    
+
                     switch (cell.getColumnIndex()) {
-                        case 4:
-                            masterOverseasBank.setCountryCode(cell.getStringCellValue());
-                            break;
-                        case 6:
-                            masterOverseasBank.setCurrency(cell.getStringCellValue());
-                            break;
                         case 1:
                             masterOverseasBank.setSpeedsendCode(cell.getStringCellValue());
                             break;
                         case 2:
                             masterOverseasBank.setBankName(cell.getStringCellValue());
                             break;
+                        case 3:
+                            mapNonSwift.setCorridorCode(cell.getStringCellValue());
+                            break;
+                        case 4:
+                            mapNonSwift.setCountryCode(cell.getStringCellValue());
+                            masterOverseasBank.setCountryCode(cell.getStringCellValue());
+                            break;
+                        case 6:
+                            mapNonSwift.setCurrency(cell.getStringCellValue());
+                            masterOverseasBank.setCurrency(cell.getStringCellValue());
+                            break;
                         default:
                             break;
                     }
                 }
-    
+
                 // Check if the data already exists in the repository
-                boolean dataExists = masterOverseasBankRepository.existsBySpeedsendCode(masterOverseasBank.getSpeedsendCode());
-    
+                boolean dataMapExists = mapNonSwiftRepository.existsByCountryCodeAndCurrency(
+                        mapNonSwift.getCountryCode(),
+                        mapNonSwift.getCurrency());
+
+                boolean dataMasterExists = masterOverseasBankRepository
+                        .existsBySpeedsendCode(masterOverseasBank.getSpeedsendCode());
+
                 // If data exists and the repository is not empty, set isDelete to false
-                if (!isRepositoryEmpty && dataExists) {
+                if (!isMapRepositoryEmpty && dataMapExists) {
+                    mapNonSwift.setIsDelete(false);
+                }
+
+                if (!isMasterRepositoryEmpty && dataMasterExists) {
                     masterOverseasBank.setIsDelete(false);
                 }
-    
-                // Check if SpeedsendCode has text before saving
+
+                // Check if CountryCode and Currency have text before saving
+                boolean isCountryCodeAndCurrencyHasText = StringUtils.hasText(mapNonSwift.getCountryCode())
+                        && StringUtils.hasText(mapNonSwift.getCurrency());
                 boolean isSpeedsendCodeHasText = StringUtils.hasText(masterOverseasBank.getSpeedsendCode());
-    
+
+                if (isCountryCodeAndCurrencyHasText) {
+                    mapNonSwiftRepository.save(mapNonSwift);
+                }
+
                 if (isSpeedsendCodeHasText) {
                     masterOverseasBankRepository.save(masterOverseasBank);
-                    masterOverseasBanks.add(masterOverseasBank);
                 }
             }
             fis.close();
         } catch (Exception e) {
             log.error("Error while reading excel file", e);
-            return Collections.emptyList();
         }
-    
-        return masterOverseasBanks;
     }
-    
 
 }
