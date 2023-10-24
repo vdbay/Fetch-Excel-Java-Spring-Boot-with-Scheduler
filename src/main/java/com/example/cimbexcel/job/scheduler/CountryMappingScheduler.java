@@ -15,9 +15,9 @@ public class CountryMappingScheduler implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         log.error("Running CountryMappingScheduler");
         try {
-            CountryMappingUtil.readMapNonSwiftAndSaveToDB("src/main/resources/SpeedSendCountryMapping.xlsx");
+            CountryMappingUtil.readExcelAndSave("src/main/resources/SpeedSendCountryMapping.xlsx");
         } catch (Exception e) {
-            log.error("Error running CountryMappingScheduler: {}", e.getMessage());
+            log.error("Error running CountryMappingScheduler: {}", e.toString());
         }
 
     }
